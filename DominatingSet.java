@@ -3,6 +3,7 @@ import java.util.stream.*;
 import java.util.stream.Collectors;
 import java.util.function.*;
 import java.util.Optional;
+import java.util.TreeSet;
 /*
  * Find the smallest dominating set for a graph
  *  
@@ -19,66 +20,28 @@ public class DominatingSet {
        a subset that is a dominating set
     */
     private static boolean isDominatingSet(long x) {
-	int verticesInSet[]   = new int [n];
-	int verticesCovered[] = new int [n];
 	long mask = 1;
-	/* Calculate which vertices belong to the set
-	   encoded by the value x
-	*/
-	for(int i=0;i < n;i++) {
-	    if ((x & mask) != 0) {
-		verticesInSet[i] = 1;
-		verticesCovered[i] = 1;
-	    }
-	    else {
-		verticesInSet[i] = 0;
-		verticesCovered[i] = 0;
-	    }
-	    mask = mask * 2;
-	}	
-	/* 
-	   Check for all nodes if:
-	   - They belong to the dominating set
-	   - or they are connected to a node in the dominating set
-	*/
-	for(int i = 0;i < n;i++) {
-	    // Check if node i is adjacent
-	    // to a node in verticesInSet
-	    if (verticesCovered[i] == 0) { 
-		for(int j = 0;j < n;j++) {
-		    if (i!=j && adjacencyMatrix[i][j] == 1 && verticesInSet[j] == 1) {
-			verticesCovered[i] = 1;
+	TreeSet<Integer> verticiesInSet =
+		new TreeSet<Integer>();
+	
+	for(int i = 0; i < n; i++){
+		if((x & mask) != 0){
+			verticiesInSet.add(i);
+		}
 
-			/* if Vertex j is in the Set and the adjacent Vertex i is also in
-			 * the Set, then the Set is not independent. Two Vertices in the 
-			 * Set cannot be adjacent to each other for the set to be independent.
-			 * It still could be dominating, but not Independent.
-			 * A Maximal Independent Set is also a dominating set
-			 * in the graph. This is because if there was a Vertex that was
-			 * not adjacent to any of the verticies in the Maximal Independent
-			 * set, then it should be in the Set as seeing adding it wouldn't 
-			 * touch any of the other verticies. Therefore, if every vertex has
-			 * to be adjacent to at least one vertex of the Maximal Independent Set,
-			 * then the MIS is also a Dominating set.*/
-			if(verticesInSet[i] == 1){
-				/* Checking to see if the adjacent vertex is in the set,
-				 * if it is, the set is not Independent. */
+		mask = mask * 2;
+	}
+
+
+   	 for(int i : verticiesInSet){
+		for(int j: verticiesInSet){
+			if(j != i && adjacencyMatrix[i][j] == 1){
 				return false;
 			}
-			break;
-		    }
 		}
-	    }
-	}
-	// Check if all vertices are covered
-	for(int i = 0;i < n;i++) {
-	    if (verticesCovered[i] == 0) {
-		return false;
-	    }
-	}
-	// 
-	// System.out.println("Inside isDominatingSet - argument "+x);
-	return true;
+  	  }
+
+          return true;
     }
 
 
